@@ -14,29 +14,6 @@
 // Note that OC2B = GPIO port PD3 = Arduino Digital Pin 3
 // Generate a on-shot pulse that is _clocks_ clock counts long
 
-void pulseTimer2ctc(uint8_t clocks) {
-
-	DDRD |= _BV(3);			// Set pin to output
-	DDRB |= _BV(3);			// Set pin to output
-
-	DDRB |= _BV(4);			// Set D12 to output for trigger
-
-	TCCR2A = 0;
-	TCCR2B = 0;		// Stop counter, start selecting mode 0
-
-	TCNT2 = 0xf0;			// Start counting at bottom. 
-	OCR2A = 0x01;			// TOP
-	OCR2B = 0xf5;			// Match (and toggle off) here
-
-	TCCR2A = _BV(COM2A1) | _BV(COM2A0) | _BV(COM2B0) | _BV(COM2B1) | _BV(WGM20) | _BV(WGM21);	// Set on Match, Mode 7
-	TCCR2B = _BV(WGM22) | _BV(CS20);		// Trigger Compare (toggle), Start counting
-	/*
-	PORTB |= _BV(4);		// Trigger
-	//_delay_us(10);
-	PORTB &= ~_BV(4);
-	*/
-}
-
 #define OSP_SET_WIDTH(cycles) (OCR2B = 0xff-(cycles-1))
 
 // Setup the one-shot pulse generator and initialize with a pulse width that is (cycles) clock counts long
