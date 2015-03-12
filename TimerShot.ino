@@ -28,14 +28,12 @@ void osp_setup(uint8_t cycles) {
 							// This keeps anyhting from happeneing while we get set up
 
 	TCNT2 = 0x00;			// Start counting at bottom. 
-	OCR2A = 0;				// Set TOP to 0. This effectively keeps us from counting becuase the counter just keeps reseting back to 0.
-							// We break out of this by manually setting the TCNT higher than 0, in which case it will count all the Way up to MAX and then overflow back to 0 and get locked up again.
-	OSP_SET_WIDTH(cycles);	// This also makes new OCR values get loaded frm the buffer on every clock cycle. 
+	OCR2A = 0;			// Set TOP to 0. This effectively keeps us from counting becuase the counter just keeps reseting back to 0.
+					// We break out of this by manually setting the TCNT higher than 0, in which case it will count all the way up to MAX and then overflow back to 0 and get locked up again.
+	OSP_SET_WIDTH(cycles);		// This also makes new OCR values get loaded frm the buffer on every clock cycle. 
 
-	;	// Match (and set OC) here. For now, set it above TOP so it wil not be accedentally triggered when we start
-
-	TCCR2A = _BV(COM2B0) | _BV(COM2B1) | _BV(WGM20) | _BV(WGM21);	//  OC2B=Set on Match, clear on BOTTOM. Mode 7 Fast PWM.
-	TCCR2B = _BV(WGM22)| _BV(CS20);									// Start counting now. WGM22=1 to select Fast PWM mode 7
+	TCCR2A = _BV(COM2B0) | _BV(COM2B1) | _BV(WGM20) | _BV(WGM21);	// OC2B=Set on Match, clear on BOTTOM. Mode 7 Fast PWM.
+	TCCR2B = _BV(WGM22)| _BV(CS20);					// Start counting now. WGM22=1 to select Fast PWM mode 7
 
 	DDRD |= _BV(3);			// Set pin to output
 
@@ -53,10 +51,9 @@ void osp_setup() {
 
 #define OSP_FIRE() (TCNT2 = OCR2B - 1)
 
-// Test if the last fired pulse is still in progress
+// Test there is currently a pulse still in progress
 
 #define OSP_INPROGRESS() (TCNT2>0)
-
 
 // Fire a one-shot pusle with the specififed width. 
 // Order of operations in calculating m must avoid overflow of the unint8_t.
@@ -82,10 +79,9 @@ void loop()
 
 		_delay_ms(1000);
 
-
 		OSP_SET_AND_FIRE(o);
 
-		PORTB |= _BV(4);		// Trigger
+		PORTB |= _BV(4);		// Trigger Scope
 
 		while (OSP_INPROGRESS());
 
