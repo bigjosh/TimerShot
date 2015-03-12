@@ -1,3 +1,6 @@
+// More info about this program is here...
+// http://wp.josh.com/2015/03/05/the-perfect-pulse-some-tricks-for-generating-precise-one-shots-on-avr8/
+
 // Demo of a technique to generate narrow and precise one shot pulses using a 
 // timer module on an AVR. This demo code is writen for an Arduino and uses
 // the Timer2 moudle, but this techniquie should would on other AVRs and timers. 
