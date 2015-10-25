@@ -72,6 +72,10 @@ void setup()
 
 void loop()
 {
+	osp_setup(254);
+	OSP_FIRE();
+
+	while (1);
 
 	// Step though 0-19 cycle long pulses for demo purposes 
 
