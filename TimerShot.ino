@@ -12,10 +12,8 @@
 // ...up to a total of 20 pulses, and then starts over.
 
 // The one shot pulses are output on Digial pin 3
-// An ossiliscope trigger signal is output on Ditigal pin 12
 
-// Note that OC2B = GPIO port PD3 = Arduino Digital Pin 3
-// Generate a on-shot pulse that is _clocks_ clock counts long
+
 
 #define OSP_SET_WIDTH(cycles) (OCR2B = 0xff-(cycles-1))
 
@@ -24,26 +22,25 @@
 void osp_setup(uint8_t cycles) {
 
 
-	TCCR2B =  0;			// Halt counter by setting clock select bits to 0 (No clock source).
-							// This keeps anyhting from happeneing while we get set up
+  TCCR2B =  0;      // Halt counter by setting clock select bits to 0 (No clock source).
+              // This keeps anyhting from happeneing while we get set up
 
-	TCNT2 = 0x00;			// Start counting at bottom. 
-	OCR2A = 0;			// Set TOP to 0. This effectively keeps us from counting becuase the counter just keeps reseting back to 0.
-					// We break out of this by manually setting the TCNT higher than 0, in which case it will count all the way up to MAX and then overflow back to 0 and get locked up again.
-	OSP_SET_WIDTH(cycles);		// This also makes new OCR values get loaded frm the buffer on every clock cycle. 
+  TCNT2 = 0x00;     // Start counting at bottom. 
+  OCR2A = 0;      // Set TOP to 0. This effectively keeps us from counting becuase the counter just keeps reseting back to 0.
+          // We break out of this by manually setting the TCNT higher than 0, in which case it will count all the way up to MAX and then overflow back to 0 and get locked up again.
+  OSP_SET_WIDTH(cycles);    // This also makes new OCR values get loaded frm the buffer on every clock cycle. 
 
-	TCCR2A = _BV(COM2B0) | _BV(COM2B1) | _BV(WGM20) | _BV(WGM21);	// OC2B=Set on Match, clear on BOTTOM. Mode 7 Fast PWM.
-	TCCR2B = _BV(WGM22)| _BV(CS20);					// Start counting now. WGM22=1 to select Fast PWM mode 7
+  TCCR2A = _BV(COM2B0) | _BV(COM2B1) | _BV(WGM20) | _BV(WGM21); // OC2B=Set on Match, clear on BOTTOM. Mode 7 Fast PWM.
+  TCCR2B = _BV(WGM22)| _BV(CS20);         // Start counting now. WGM22=1 to select Fast PWM mode 7
 
-	DDRD |= _BV(3);			// Set pin to output
-
+  DDRD |= _BV(3);     // Set pin to output (Note that OC2B = GPIO port PD3 = Arduino Digital Pin 3)
 }
 
 // Setup the one-shot pulse generator
 
 void osp_setup() {
 
-	osp_setup(1);
+  osp_setup(1);
 
 }
 
@@ -64,35 +61,23 @@ void osp_setup() {
 
 void setup()
 {
-
-	DDRB |= _BV(4);		// Set Digital Pin 12 to output for ossiliscope trigger
-	osp_setup();
+  osp_setup();
 
 }
 
 void loop()
 {
-	osp_setup(254);
-	OSP_FIRE();
+  // Step though 0-19 cycle long pulses for demo purposes 
 
-	while (1);
+  for (uint8_t o = 0; o < 20; o++) {
 
-	// Step though 0-19 cycle long pulses for demo purposes 
+    OSP_SET_AND_FIRE(o);
 
-	for (uint8_t o = 0; o < 20; o++) {
+    while (OSP_INPROGRESS());         // This just shows how you would wait if nessisary - not nessisary in this application. 
 
-		_delay_ms(1000);
+    _delay_ms(1000);      // Wait a sec to let the audience clap
 
-		OSP_SET_AND_FIRE(o);
-
-		PORTB |= _BV(4);		// Trigger Scope
-
-		while (OSP_INPROGRESS());
-
-		PORTB &= ~_BV(4);
-
-
-	}
+  }
 
 
 }
